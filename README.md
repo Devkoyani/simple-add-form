@@ -15,10 +15,6 @@ A basic React application with Tailwind CSS integration, featuring a simple form
 - [Tailwind CSS](https://tailwindcss.com/)
 - [Create React App](https://create-react-app.dev/)
 
-## 📸 Preview
-
-![App Screenshot](./screenshot.png) <!-- Add a screenshot image if available -->
-
 ## 📦 Installation
 
 ```bash
