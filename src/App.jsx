@@ -34,8 +34,10 @@ function App() {
   };
 
   const handleDelete = (index) => {
+    if (window.confirm('Are you sure you want to delete this record?')) {
     const updatedData = submittedData.filter((_, i) => i !== index);
     setSubmittedData(updatedData);
+    }
   };
 
   const handleSearch = (e) => {
