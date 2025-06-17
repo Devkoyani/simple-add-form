@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
+import { FaEdit } from "react-icons/fa";
+import { MdDeleteForever } from "react-icons/md";
 
 function App() {
   const [formData, setFormData] = useState({ name: '', email: '' });
   const [submittedData, setSubmittedData] = useState([]);
+  const [editIndex, setEditIndex] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -11,12 +14,30 @@ function App() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setSubmittedData([...submittedData, formData]);
+    if (editIndex !== null) {
+      const updatedData = [...submittedData];
+      updatedData[editIndex] = formData;
+      setSubmittedData(updatedData);
+      setEditIndex(null);
+    } else {
+      setSubmittedData([...submittedData, formData]);
+    }
     setFormData({ name: '', email: '' });
-  }
+  };
+
+  const handleEdit = (index) => {
+    setFormData(submittedData[index]);
+    setEditIndex(index);
+  };
+
+  const handleDelete = (index) => {
+    const updatedData = submittedData.filter((_, i) => i !== index);
+    setSubmittedData(updatedData);
+  };
+
   return (
     <div className="min-h-screen bg-gray-500 p-28">
-      <div className="max-w-lg mx-auto bg-white shadow-md rounded-3xl p-6">
+      <div className="max-w-3xl mx-auto bg-white shadow-md rounded-3xl p-6">
         <h1 className="text-2xl font-bold mb-4 text-center">Add User</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -45,7 +66,7 @@ function App() {
             type="submit"
             className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-800"
           >
-            Add
+            {editIndex !== null ? 'Update' : 'Add'}
           </button>
         </form>
 
@@ -58,6 +79,7 @@ function App() {
                   <th className="px-4 py-2 border">Sr. No.</th>
                   <th className="px-4 py-2 border">Name</th>
                   <th className="px-4 py-2 border">Email</th>
+                  <th className="px-4 py-2 border">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -66,11 +88,15 @@ function App() {
                   <td className="px-4 py-2 border">{index + 1}</td>
                   <td className="px-4 py-2 border">{user.name}</td>
                   <td className="px-4 py-2 border">{user.email}</td>
+                  <td className="border px-4 py-2 space-x-2">
+                      <button onClick={() => handleEdit(index)} className="text-blue-600 text-lg" title='Edit'><FaEdit /></button>
+                      <button onClick={() => handleDelete(index)} className="text-red-600 text-lg" title='Delete'><MdDeleteForever /></button>
+                    </td>
                 </tr>
                 ))}
                 {submittedData.length === 0 && (
                   <tr>
-                    <td colSpan="3" className="text-center py-4 text-gray-500">No users added yet.</td>
+                    <td colSpan="4" className="text-center py-4 text-gray-500">No users added yet.</td>
                   </tr>
                 )}
               </tbody>
