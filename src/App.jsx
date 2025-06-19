@@ -1,51 +1,61 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { FaEdit } from "react-icons/fa";
 import { MdDeleteForever } from "react-icons/md";
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  addUser,
+  updateUser,
+  deleteUser,
+  setEditIndex,
+  setSearchTerm,
+  setCurrentPage,
+  setFormData
+} from './Redux/userSlice';
 
 function App() {
-  const [formData, setFormData] = useState({ name: '', email: '' });
-  const [submittedData, setSubmittedData] = useState([]);
-  const [editIndex, setEditIndex] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 2;
+  const dispatch = useDispatch();
+  const {
+    users,
+    editIndex,
+    searchTerm,
+    currentPage,
+    itemsPerPage,
+    formData = { name: '', email: '' }
+  } = useSelector(state => state.users);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    dispatch(setFormData({ ...formData, [name]: value }));
   }
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (editIndex !== null) {
-      const updatedData = [...submittedData];
-      updatedData[editIndex] = formData;
-      setSubmittedData(updatedData);
-      setEditIndex(null);
+      dispatch(updateUser({ index: editIndex, user: formData }));
     } else {
-      setSubmittedData([...submittedData, formData]);
+      dispatch(addUser(formData));
     }
-    setFormData({ name: '', email: '' });
+    dispatch(setFormData({ name: '', email: '' }));
   };
 
   const handleEdit = (index) => {
-    setFormData(submittedData[index]);
-    setEditIndex(index);
+    const globalIndex = (currentPage - 1) * itemsPerPage + index;
+    dispatch(setFormData(users[globalIndex]));
+    dispatch(setEditIndex(globalIndex));
   };
 
   const handleDelete = (index) => {
     if (window.confirm('Are you sure you want to delete this record?')) {
-    const updatedData = submittedData.filter((_, i) => i !== index);
-    setSubmittedData(updatedData);
+      const globalIndex = (currentPage - 1) * itemsPerPage + index;
+      dispatch(deleteUser(globalIndex));
     }
   };
 
   const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1);
+    dispatch(setSearchTerm(e.target.value));
   };
 
-  const filteredData = submittedData.filter((user) =>
+  const filteredData = users.filter((user) =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -58,9 +68,9 @@ function App() {
 
   const changePage = (direction) => {
     if (direction === 'prev' && currentPage > 1) {
-      setCurrentPage(currentPage - 1);
+      dispatch(setCurrentPage(currentPage - 1));
     } else if (direction === 'next' && currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
+      dispatch(setCurrentPage(currentPage + 1));
     }
   };
 
